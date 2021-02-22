@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.bill.imagedragpro.DragLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drag_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ff0000"
+    tools:context=".ImageActivity">
+
+    <ImageView
+        android:id="@+id/picture"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/icon_bg_type_3" />
+
+</com.bill.imagedragpro.DragLayout>
