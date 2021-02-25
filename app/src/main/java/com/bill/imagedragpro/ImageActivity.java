@@ -1,32 +1,49 @@
 package com.bill.imagedragpro;
 
 import android.os.Bundle;
-import android.widget.ImageView;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageActivity extends AppCompatActivity {
 
-    public static final String TRANSIT_PIC = "picture";
+    private final int[] imgRes = new int[]{R.drawable.sl, R.drawable.bg};
 
-    private DragLayout dragLayout;
+    public View parentView;
+
+    private ViewPager mViewPager;
+    private MyPaperAdapter mPaperAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
-        dragLayout = findViewById(R.id.drag_layout);
-        dragLayout/*.bind(this)*/.setDragListener(new DragLayout.DragListener() {
-            @Override
-            public void onDragFinished() {
-                ImageActivity.this.onBackPressed();
-            }
+        parentView = findViewById(R.id.image_parent);
 
-        });
+        mViewPager = findViewById(R.id.vp_image);
+        mPaperAdapter = new MyPaperAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mPaperAdapter);
 
-        ImageView imageView = findViewById(R.id.picture);
-        ViewCompat.setTransitionName(imageView, TRANSIT_PIC);
+        mPaperAdapter.setData(getFragments());
+        mPaperAdapter.notifyDataSetChanged();
 
     }
+
+    private List<Fragment> getFragments() {
+        List<Fragment> list = new ArrayList<>();
+        for (int i = 0; i < imgRes.length; i++) {
+            Fragment fragment = new ImageFragment();
+            Bundle bundle = new Bundle();
+            bundle.putInt("imgRes", imgRes[i]);
+            fragment.setArguments(bundle);
+            list.add(fragment);
+        }
+        return list;
+    }
+
 }

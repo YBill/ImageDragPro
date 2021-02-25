@@ -1,11 +1,8 @@
 package com.bill.imagedragpro;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -15,10 +12,13 @@ import androidx.core.view.ViewCompat;
 import androidx.customview.widget.ViewDragHelper;
 
 /**
- * Created by Bill on 2021/2/22.
+ * author : Bill
+ * date : 2021/2/22
+ * description :
  */
 
 public class DragLayout extends RelativeLayout {
+
     private ViewDragHelper mViewDragHelper;
 
     private Point originPoint = new Point();
@@ -41,51 +41,28 @@ public class DragLayout extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public DragLayout bind(Activity activity) {
-        activity.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
-        return this;
-    }
-
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mViewDragHelper = ViewDragHelper.create(this, 1f, new ViewDragCallback());
     }
 
-    float lastX;
-    float lastY;
-    float disX = 0;
-    float disY = 0;
-
-    public static double radianToDegree(double radian) {
-        return radian * 180 / Math.PI;
-    }
-
-    public static float dp2Px(Context ctx, float dp) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, ctx.getApplicationContext().getResources().getDisplayMetrics());
-    }
-
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
 
-        if (action == MotionEvent.ACTION_DOWN) {
-            lastX = ev.getX();
-            lastY = ev.getY();
-        } else if (ev.getAction() == MotionEvent.ACTION_MOVE) {
-            disX = lastX - ev.getX();
-            disY = lastY - ev.getY();
-            double degree = Math.atan2(Math.abs(disY), Math.abs(disX));
-            if (disX < -dp2Px(getContext(), 100) && radianToDegree(degree) < 30) {
-                return mViewDragHelper.shouldInterceptTouchEvent(ev);
-            }
-        } else if (action == MotionEvent.ACTION_CANCEL
+        if (action == MotionEvent.ACTION_CANCEL
                 || action == MotionEvent.ACTION_UP) {
             mViewDragHelper.cancel();
             return false;
         }
 
-        return super.onInterceptTouchEvent(ev);
+        // 处理事件冲突，多指时将事件交给子View去处理
+        if (ev.getPointerCount() > 1) {
+            return false;
+        }
+
+        return mViewDragHelper.shouldInterceptTouchEvent(ev);
     }
 
     @Override
@@ -96,6 +73,7 @@ public class DragLayout extends RelativeLayout {
 
     @Override
     public void computeScroll() {
+        // 处理松手回到原来位置
         if (mViewDragHelper.continueSettling(true)) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
@@ -104,6 +82,7 @@ public class DragLayout extends RelativeLayout {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
+        // 获取图片起始位置
         originPoint.x = targetView.getLeft();
         originPoint.y = targetView.getTop();
     }
@@ -111,7 +90,7 @@ public class DragLayout extends RelativeLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        targetView = findViewById(R.id.picture);
+        targetView = getChildAt(0);
     }
 
     private class ViewDragCallback extends ViewDragHelper.Callback {
@@ -123,12 +102,34 @@ public class DragLayout extends RelativeLayout {
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            return left;
+            return left; // 跟随手指水平移动
+
+            // 水平方向位置固定
+//            return (getWidth() - child.getWidth()) / 2;
+
+            // 跟随手指水平移动，判断不超出边界
+            /*final int leftBound = getPaddingLeft();
+            final int rightBound = getWidth() - child.getWidth() - getPaddingRight();
+            final int newLeft = Math.min(Math.max(left, leftBound), rightBound);
+            return newLeft;*/
         }
 
         @Override
         public int clampViewPositionVertical(View child, int top, int dy) {
-            return top;
+            return top; // 跟随手指竖直移动
+
+            // 禁止向上移动
+            /*if (top > (getHeight() - child.getHeight()) / 2) {
+                return top;
+            } else {
+                return (getHeight() - child.getHeight()) / 2;
+            }*/
+
+            // 跟随手指竖直移动，判断不超出边界
+            /*final int topBound = getPaddingTop();
+            final int bottomBound = getHeight() - child.getHeight() - getPaddingBottom();
+            final int newTop = Math.min(Math.max(top, topBound), bottomBound);
+            return newTop;*/
         }
 
         @Override
@@ -143,6 +144,7 @@ public class DragLayout extends RelativeLayout {
 
         @Override
         public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
+            // xvel和yvel分别表示水平和竖直方向的滑动速度
             if (releasedChild == targetView) {
                 if (callEvent || yvel > 8000) {
                     if (listener != null) {
@@ -150,6 +152,7 @@ public class DragLayout extends RelativeLayout {
                     }
                     callEvent = false;
                 } else {
+                    // 处理松手回到原来位置
                     mViewDragHelper.settleCapturedViewAt(originPoint.x, originPoint.y);
                     invalidate();
                 }
@@ -158,16 +161,17 @@ public class DragLayout extends RelativeLayout {
 
         @Override
         public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx, int dy) {
-            if (top > originPoint.y) {
-                float a = (float) (top - originPoint.y) / (float) (getMeasuredHeight() - originPoint.y);
-                setBackgroundColor(changeAlpha(0xff000000, 1 - a));
-                targetView.setScaleX(1 - a);
-                targetView.setScaleY(1 - a);
-                if ((top - originPoint.y) > getMeasuredHeight() / 5) {
-                    callEvent = true;
-                } else {
-                    callEvent = false;
-                }
+            int dis = top - originPoint.y;
+            float a = (float) (Math.abs(dis)) / (float) (getMeasuredHeight() - originPoint.y);
+
+            if (listener != null) {
+                listener.onDrag(a);
+            }
+
+            if (a > 0.25f) {
+                callEvent = true;
+            } else {
+                callEvent = false;
             }
         }
     }
@@ -178,13 +182,8 @@ public class DragLayout extends RelativeLayout {
 
     public interface DragListener {
         void onDragFinished();
+
+        void onDrag(float change);
     }
 
-    public static int changeAlpha(int color, float fraction) {
-        int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        int alpha = (int) (Color.alpha(color) * fraction);
-        return Color.argb(alpha, red, green, blue);
-    }
 }
