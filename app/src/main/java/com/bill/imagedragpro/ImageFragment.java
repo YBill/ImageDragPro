@@ -18,7 +18,7 @@ import androidx.fragment.app.Fragment;
  */
 public class ImageFragment extends Fragment {
 
-    private DragLayout dragLayout;
+    private DragViewLayout dragViewLayout;
     private ImageView imageView;
 
     @Nullable
@@ -37,8 +37,8 @@ public class ImageFragment extends Fragment {
             imageView.setImageResource(resId);
         }
 
-        dragLayout = view.findViewById(R.id.drag_layout);
-        dragLayout.setDragListener(new DragLayout.DragListener() {
+        dragViewLayout = view.findViewById(R.id.drag_layout);
+        dragViewLayout.setDragListener(new DragViewLayout.DragListener() {
             @Override
             public void onDragFinished() {
                 // 还原

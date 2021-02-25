@@ -17,7 +17,7 @@ import androidx.customview.widget.ViewDragHelper;
  * description :
  */
 
-public class DragLayout extends RelativeLayout {
+public class DragViewLayout extends RelativeLayout {
 
     private ViewDragHelper mViewDragHelper;
 
@@ -29,15 +29,15 @@ public class DragLayout extends RelativeLayout {
 
     private boolean callEvent = false;
 
-    public DragLayout(Context context) {
+    public DragViewLayout(Context context) {
         super(context);
     }
 
-    public DragLayout(Context context, AttributeSet attrs) {
+    public DragViewLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public DragLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public DragViewLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
