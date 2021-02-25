@@ -21,13 +21,13 @@ public class DragViewLayout extends RelativeLayout {
 
     private ViewDragHelper mViewDragHelper;
 
-    private Point originPoint = new Point();
+    private Point mOriginPoint = new Point();
 
-    private View targetView;
+    private View mTargetView;
 
-    private DragListener listener;
+    private DragListener mDragListener;
 
-    private boolean callEvent = false;
+    private boolean mCallEvent = false;
 
     public DragViewLayout(Context context) {
         super(context);
@@ -83,21 +83,21 @@ public class DragViewLayout extends RelativeLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         // 获取图片起始位置
-        originPoint.x = targetView.getLeft();
-        originPoint.y = targetView.getTop();
+        mOriginPoint.x = mTargetView.getLeft();
+        mOriginPoint.y = mTargetView.getTop();
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        targetView = getChildAt(0);
+        mTargetView = getChildAt(0);
     }
 
     private class ViewDragCallback extends ViewDragHelper.Callback {
 
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
-            return child == targetView;
+            return child == mTargetView;
         }
 
         @Override
@@ -145,15 +145,15 @@ public class DragViewLayout extends RelativeLayout {
         @Override
         public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
             // xvel和yvel分别表示水平和竖直方向的滑动速度
-            if (releasedChild == targetView) {
-                if (callEvent || yvel > 8000) {
-                    if (listener != null) {
-                        listener.onDragFinished();
+            if (releasedChild == mTargetView) {
+                if (mCallEvent || yvel > 8000) {
+                    if (mDragListener != null) {
+                        mDragListener.onDragFinished();
                     }
-                    callEvent = false;
+                    mCallEvent = false;
                 } else {
                     // 处理松手回到原来位置
-                    mViewDragHelper.settleCapturedViewAt(originPoint.x, originPoint.y);
+                    mViewDragHelper.settleCapturedViewAt(mOriginPoint.x, mOriginPoint.y);
                     invalidate();
                 }
             }
@@ -161,23 +161,23 @@ public class DragViewLayout extends RelativeLayout {
 
         @Override
         public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx, int dy) {
-            int dis = top - originPoint.y;
-            float a = (float) (Math.abs(dis)) / (float) (getMeasuredHeight() - originPoint.y);
+            int dis = top - mOriginPoint.y;
+            float a = (float) (Math.abs(dis)) / (float) (getMeasuredHeight() - mOriginPoint.y);
 
-            if (listener != null) {
-                listener.onDrag(a);
+            if (mDragListener != null) {
+                mDragListener.onDrag(a);
             }
 
             if (a > 0.25f) {
-                callEvent = true;
+                mCallEvent = true;
             } else {
-                callEvent = false;
+                mCallEvent = false;
             }
         }
     }
 
-    public void setDragListener(DragListener listener) {
-        this.listener = listener;
+    public void setDragListener(DragListener dragListener) {
+        this.mDragListener = dragListener;
     }
 
     public interface DragListener {

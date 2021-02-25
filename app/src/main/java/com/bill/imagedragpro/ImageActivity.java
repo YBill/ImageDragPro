@@ -14,7 +14,7 @@ public class ImageActivity extends AppCompatActivity {
 
     private final int[] imgRes = new int[]{R.drawable.sl, R.drawable.bg};
 
-    public View parentView;
+    public View mParentView;
 
     private ViewPager mViewPager;
     private MyPaperAdapter mPaperAdapter;
@@ -23,7 +23,7 @@ public class ImageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
-        parentView = findViewById(R.id.image_parent);
+        mParentView = findViewById(R.id.image_parent);
 
         mViewPager = findViewById(R.id.vp_image);
         mPaperAdapter = new MyPaperAdapter(getSupportFragmentManager());

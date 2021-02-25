@@ -18,8 +18,7 @@ import androidx.fragment.app.Fragment;
  */
 public class ImageFragment extends Fragment {
 
-    private DragViewLayout dragViewLayout;
-    private ImageView imageView;
+    private ImageView mImageView;
 
     @Nullable
     @Override
@@ -31,13 +30,13 @@ public class ImageFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        imageView = view.findViewById(R.id.iv_picture);
+        mImageView = view.findViewById(R.id.iv_picture);
         if (getArguments() != null) {
             int resId = getArguments().getInt("imgRes");
-            imageView.setImageResource(resId);
+            mImageView.setImageResource(resId);
         }
 
-        dragViewLayout = view.findViewById(R.id.drag_layout);
+        DragViewLayout dragViewLayout = view.findViewById(R.id.drag_layout);
         dragViewLayout.setDragListener(new DragViewLayout.DragListener() {
             @Override
             public void onDragFinished() {
@@ -58,7 +57,7 @@ public class ImageFragment extends Fragment {
 
                 if (getActivity() instanceof ImageActivity) {
                     float alpha = Math.min(change * 2f, 1f);
-                    ((ImageActivity) getActivity()).parentView.setBackgroundColor(Utils.changeAlpha(0xff000000, 1 - alpha));
+                    ((ImageActivity) getActivity()).mParentView.setBackgroundColor(Utils.changeAlpha(0xff000000, 1 - alpha));
                 }
 
 
@@ -69,8 +68,8 @@ public class ImageFragment extends Fragment {
 
 
                 float scale = Math.min(change, 0.25f);
-                imageView.setScaleX(1 - scale);
-                imageView.setScaleY(1 - scale);
+                mImageView.setScaleX(1 - scale);
+                mImageView.setScaleY(1 - scale);
 
             }
 

@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static Activity activity;
+    public static Activity activity; // 写死static测试
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
