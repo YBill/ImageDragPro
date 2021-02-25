@@ -41,6 +41,11 @@ public class ImageFragment extends Fragment {
         dragLayout.setDragListener(new DragLayout.DragListener() {
             @Override
             public void onDragFinished() {
+                // 还原
+                View mainView = MainActivity.activity.getWindow().getDecorView();
+                mainView.setScaleX(1f);
+                mainView.setScaleY(1f);
+
                 if (getActivity() != null) {
                     getActivity().finish();
                     getActivity().overridePendingTransition(0, 0);
@@ -52,15 +57,21 @@ public class ImageFragment extends Fragment {
                 Log.e("Bill", "change:" + change);
 
                 if (getActivity() instanceof ImageActivity) {
-                    ((ImageActivity) getActivity()).parentView.setBackgroundColor(Utils.changeAlpha(0xff000000, 1 - change));
+                    float alpha = Math.min(change * 2f, 1f);
+                    ((ImageActivity) getActivity()).parentView.setBackgroundColor(Utils.changeAlpha(0xff000000, 1 - alpha));
                 }
 
-                if (change > 0.25f) {
-                    change = 0.25f;
-                }
 
-//                imageView.setScaleX(1 - change);
-//                imageView.setScaleY(1 - change);
+                float mainScale = Math.min(change * 0.3f + 0.9f, 1f);
+                View mainView = MainActivity.activity.getWindow().getDecorView();
+                mainView.setScaleX(mainScale);
+                mainView.setScaleY(mainScale);
+
+
+                float scale = Math.min(change, 0.25f);
+                imageView.setScaleX(1 - scale);
+                imageView.setScaleY(1 - scale);
+
             }
 
         });
